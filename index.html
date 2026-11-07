@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CrazyYZ Playground</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  --bg-light: #f5f7fa;
+  --surface-light: #ffffff;
+  --text-light: #222222;
+  --muted-light: #777777;
+  --accent-light: #ff6f61;
+  --border-light: #e0e0e0;
+  --radius: 12px;
+  --shadow: 0 2px 6px rgba(0,0,0,0.1);
+  --bg-dark: #1e1e2f;
+  --surface-dark: #2a2a3b;
+  --text-dark: #e0e0e0;
+  --muted-dark: #a0a0b0;
+  --accent-dark: #ff8a80;
+  --border-dark: #444455;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: var(--bg-dark);
+    --surface: var(--surface-dark);
+    --text: var(--text-dark);
+    --muted: var(--muted-dark);
+    --accent: var(--accent-dark);
+    --border: var(--border-dark);
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: var(--bg-light);
+    --surface: var(--surface-light);
+    --text: var(--text-light);
+    --muted: var(--muted-light);
+    --accent: var(--accent-light);
+    --border: var(--border-light);
+  }
+}
+html,body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,Arial,sans-serif;
+  line-height:1.5;
+}
+.container{
+  max-width:960px;
+  margin:auto;
+  padding:16px;
+}
+h1{
+  font-size:clamp(2rem,5vw,3.5rem);
+  margin:0 0 0.5rem;
+  line-height:1.2;
+}
+p{
+  margin:0 0 1rem;
+}
+button{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:var(--radius);
+  padding:0.75rem 1.5rem;
+  font-size:1rem;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:background 150ms ease-in-out,transform 150ms;
+}
+button:hover{
+  background:#e65a4f;
+}
+button:focus-visible{
+  outline:2px solid var(--border);
+  outline-offset:2px;
+}
+button:active{
+  transform:scale(0.97);
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1rem;
+  margin-bottom:1rem;
+  box-shadow:var(--shadow);
+}
+#quote{
+  font-style:italic;
+  color:var(--muted);
+}
+#colorBox{
+  width:100%;
+  height:200px;
+  border-radius:var(--radius);
+  margin:1rem 0;
+  background:linear-gradient(135deg,var(--accent),var(--muted));
+  transition:background 300ms ease;
+}
+footer{
+  text-align:center;
+  font-size:0.875rem;
+  color:var(--muted);
+  margin-top:2rem;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>CrazyYZ Playground</h1>
+    <p>Press the buttons, watch colors dance, and enjoy random wisdom.</p>
+  </header>
+
+  <section class="card">
+    <button id="colorBtn">Change Background</button>
+    <div id="colorBox" aria-hidden="true"></div>
+  </section>
+
+  <section class="card">
+    <button id="quoteBtn">Show Random Quote</button>
+    <p id="quote" role="status"></p>
+  </section>
+
+  <section class="card">
+    <button id="confettiBtn">Celebrate 🎉</button>
+    <canvas id="confettiCanvas" style="display:none;"></canvas>
+  </section>
+
+  <footer>
+    <p>© 2026 CrazyYZ. All rights reserved.</p>
+  </footer>
+</div>
+
+<script>
+/* Utility: simple random integer */
+function randInt(max){return Math.floor(Math.random()*max);}
+
+/* Background color changer */
+document.getElementById('colorBtn').addEventListener('click',function(){
+  var hue = randInt(360);
+  var sat = 60 + randInt(40);
+  var lig = 50 + randInt(30);
+  var gradient = 'linear-gradient(135deg,hsl(' + hue + ',' + sat + '%,70%),hsl(' + ((hue+60)%360) + ',' + sat + '%,80%))';
+  document.getElementById('colorBox').style.background = gradient;
+});
+
+/* Random quotes */
+var quotes = [
+  "Life is what happens when you're busy making other plans.",
+  "Be yourself; everyone else is already taken.",
+  "The only way to do great work is to love what you do.",
+  "If you can dream it, you can achieve it.",
+  "In the middle of difficulty lies opportunity."
+];
+document.getElementById('quoteBtn').addEventListener('click',function(){
+  var q = quotes[randInt(quotes.length)];
+  var el = document.getElementById('quote');
+  el.textContent = q;
+});
+
+/* Simple confetti effect */
+document.getElementById('confettiBtn').addEventListener('click',function(){
+  var canvas = document.getElementById('confettiCanvas');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var colors = ['#ff6f61','#ff8a80','#ffd54f','#4db6ac','#9575cd'];
+  for(var i=0;i<120;i++){
+    particles.push({
+      x: randInt(canvas.width),
+      y: -20,
+      size: 5 + randInt(5),
+      speed: 2 + Math.random()*3,
+      color: colors[randInt(colors.length)],
+      tilt: Math.random()*10 -5
+    });
+  }
+  function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(function(p){
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+      p.y += p.speed;
+      p.tilt += (Math.random()-0.5)*0.5;
+      p.x += p.tilt;
+    });
+    particles = particles.filter(function(p){return p.y < canvas.height;});
+    if(particles.length>0){
+      requestAnimationFrame(render);
+    } else {
+      canvas.style.display='none';
+    }
+  }
+  render();
+});
+</script>
+</body>
+</html>
